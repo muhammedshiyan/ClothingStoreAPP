@@ -1,0 +1,65 @@
+﻿@using ClothingStore.Core.Entities
+@model IEnumerable<ClothingStore.Core.Entities.Order>
+
+<h2 class="mb-4">Order Management</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th width="40%">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.CustomerName</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                <td>₹@order.TotalAmount</td>
+                <td>
+                    <span class="badge bg-@(
+                          order.OrderStatus == OrderStatus.Pending ? "warning" :
+                          order.OrderStatus == OrderStatus.Approved ? "info" :
+                          order.OrderStatus == OrderStatus.Shipped ? "success" :
+                          "danger"
+                                        )">
+                    @order.OrderStatus
+                </span>
+            </td>
+            <td>
+                @if (order.OrderStatus == OrderStatus.Pending)
+                    {
+                        <form method="post" asp-action="Approve" asp-route-id="@order.Id" class="d-inline">
+                            <button class="btn btn-sm btn-primary">Approve</button>
+                        </form>
+                    }
+
+                    @if (order.OrderStatus == OrderStatus.Approved)
+                    {
+                        <form method="post" asp-action="Ship" asp-route-id="@order.Id" class="d-inline">
+                            <button class="btn btn-sm btn-success">Mark Shipped</button>
+                        </form>
+                    }
+
+                    @if (order.OrderStatus != OrderStatus.Cancelled)
+                    {
+                        <form method="post" asp-action="Cancel" asp-route-id="@order.Id" class="d-inline">
+                            <button class="btn btn-sm btn-danger">Cancel</button>
+                        </form>
+                    }
+
+                    <a class="btn btn-sm btn-outline-dark"
+                       asp-action="Invoice" asp-route-id="@order.Id">
+                        Invoice
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

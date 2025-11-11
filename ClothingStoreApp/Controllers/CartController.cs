@@ -114,7 +114,7 @@ public class CartController : Controller
             Email = model.Email,
             Address = model.Address,
             PaymentMethod = model.PaymentMethod,
-            OrderStatus = "Pending",
+            OrderStatus = OrderStatus.Pending,
             TotalAmount = cart.Sum(c => c.Price * c.Quantity)
         };
 
@@ -135,6 +135,13 @@ public class CartController : Controller
         }
 
         await _context.SaveChangesAsync();
+
+        foreach (var item in cart)
+        {
+            var product = _context.Products.Where(p => p.Id == item.ProductId).FirstOrDefault();
+            product.StockQuantity = product.StockQuantity - item.Quantity;
+            await _context.SaveChangesAsync();
+        }
 
         HttpContext.Session.Remove("cart"); // clear cart
 

@@ -1,7 +1,48 @@
 ﻿@model ClothingStore.Core.Entities.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
 
-<div class="container mt-4">
-    <h2>@Model.Name</h2>
-    <p>@Model.Description</p>
-    <strong>Price: ₹@Model.Price</strong>
+<div class="container mt-5">
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-5 text-center">
+            <img src="@Model.ImageUrl" alt="@Model.Name"
+                 class="img-fluid rounded shadow"
+                 style="max-height:350px; object-fit:cover;">
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-7">
+
+            <h2 class="fw-bold">@Model.Name</h2>
+
+            <p class="text-muted">@Model.Description</p>
+
+            <h4 class="text-danger fw-bold mb-3">₹@Model.Price</h4>
+
+            <p><strong>Category:</strong> @Model.Category</p>
+
+            <p>
+                <strong>Stock:</strong>
+                @if (Model.StockQuantity > 0)
+                {
+                    <span class="text-success">In Stock (@Model.StockQuantity)</span>
+                }
+                else
+                {
+                    <span class="text-danger">Out of Stock</span>
+                }
+            </p>
+
+            <a href="/Cart/Add/@Model.Id" class="btn btn-dark btn-lg mt-3">
+                <i class="bi bi-cart"></i> Add to Cart
+            </a>
+
+            <a href="/Product" class="btn btn-outline-secondary btn-lg mt-3 ms-2">
+                Back to Products
+            </a>
+        </div>
+    </div>
 </div>

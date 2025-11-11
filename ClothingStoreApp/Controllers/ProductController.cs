@@ -43,27 +43,51 @@ namespace ClothingStoreApp.Controllers
             return View();
         }
 
-        // Create Product (POST)
         [HttpPost]
         public async Task<IActionResult> Create(ProductViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var product = new Product
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Price = model.Price,
-                    Category = model.Category,
-                    StockQuantity = model.StockQuantity,
-                    ImageUrl = model.ImageUrl
-                };
+            if (!ModelState.IsValid)
+                return View(model);
 
-                await _repo.AddAsync(product);
-                return RedirectToAction("Index");
+            string imagePath = null;
+
+            if (model.ProductImage != null)
+            {
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products");
+                Directory.CreateDirectory(uploadsFolder); // ensure folder exists
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ProductImage.FileName);
+                string filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProductImage.CopyToAsync(stream);
+                }
+
+                imagePath = "/images/products/" + fileName;
             }
-            return View(model);
+
+            if (imagePath == null)
+                imagePath = "";
+
+            var product = new Product
+            {
+                Name = model.Name,
+                Description = model.Description,
+                Price = model.Price,
+                Category = model.Category,
+                StockQuantity = model.StockQuantity,
+                //ImageUrl = model.ImageUrl,
+                ImageUrl = imagePath
+            };
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            TempData["success"] = "Product added successfully ✅";
+            return RedirectToAction("Index");
         }
+
 
         // Edit Product (GET)
         public async Task<IActionResult> Edit(int id)
@@ -81,6 +105,7 @@ namespace ClothingStoreApp.Controllers
                 StockQuantity = product.StockQuantity,
                 ImageUrl = product.ImageUrl
             };
+
             return View(vm);
         }
 
@@ -93,16 +118,41 @@ namespace ClothingStoreApp.Controllers
                 var product = await _repo.GetByIdAsync(model.Id);
                 if (product == null) return NotFound();
 
+
+                string imagePath = null;
+                if (model.ProductImage != null)
+                {
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products");
+                    Directory.CreateDirectory(uploadsFolder); // ensure folder exists
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ProductImage.FileName);
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProductImage.CopyToAsync(stream);
+                    }
+
+                    imagePath = "/images/products/" + fileName;
+                }
+
+                if (imagePath == null)
+                    imagePath = "";
+
                 product.Name = model.Name;
                 product.Description = model.Description;
                 product.Price = model.Price;
                 product.Category = model.Category;
                 product.StockQuantity = model.StockQuantity;
-                product.ImageUrl = model.ImageUrl;
+                product.ImageUrl = imagePath;
 
                 await _repo.UpdateAsync(product);
+
                 return RedirectToAction("Index");
+
+
             }
+
             return View(model);
         }
 

@@ -1,8 +1,9 @@
-﻿using ClothingStore.Infrastructure.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using ClothingStore.Core.Entities;
+using ClothingStore.Infrastructure.Data;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 public class OrderController : Controller
 {
@@ -12,8 +13,17 @@ public class OrderController : Controller
     {
         _context = context;
     }
+    public async Task<IActionResult> Index()
+    {
+        var orders = await _context.Orders
+            .Include(o => o.Items)
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync();
 
-    public async Task<IActionResult> Details(int id)
+        return View(orders); // ✅ Return model
+    }
+
+    public async Task<IActionResult> OrderDetails(int id)
     {
         var order = await _context.Orders
             .Include(o => o.Items)
@@ -24,6 +34,78 @@ public class OrderController : Controller
 
         return View(order);
     }
+    // ✅ Order List Page
+    [HttpGet("")]
+    public async Task<IActionResult> Ordermanagement()
+    {
+        var orders = await _context.Orders
+            .Include(o => o.Items)
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync();
+
+        return View(orders);
+    }
+
+    [HttpPost("Approve/{id}")]
+    public async Task<IActionResult> Approve(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null) return NotFound();
+
+        order.OrderStatus = OrderStatus.Approved;
+        order.ApprovedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("OrderDetails", new { id });
+    }
+
+    [HttpPost("Ship/{id}")]
+    public async Task<IActionResult> Ship(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null) return NotFound();
+
+        order.OrderStatus = OrderStatus.Shipped;
+        order.ShippedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("OrderDetails", new { id });
+    }
+
+    [HttpPost("Deliver/{id}")]
+    public async Task<IActionResult> Deliver(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null) return NotFound();
+
+        order.OrderStatus = OrderStatus.Delivered;
+        order.DeliveredAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("OrderDetails", new { id });
+    }
+
+    [HttpPost("Cancel/{id}")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null) return NotFound();
+
+        order.OrderStatus = OrderStatus.Cancelled;
+        order.CancelledAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("OrderDetails", new { id });
+    }
+
+
+    //// ✅ Invoice
+    //[HttpGet("Invoice/{id}")]
+    //public async Task<IActionResult> Invoice(int id)
+    //{
+    //    return RedirectToAction("Invoice", "Order", new { id });
+    //}
+    [HttpGet("Invoice/{id}")]
     public async Task<IActionResult> Invoice(int id)
     {
         var order = await _context.Orders

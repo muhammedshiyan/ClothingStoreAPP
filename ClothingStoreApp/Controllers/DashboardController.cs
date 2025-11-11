@@ -47,67 +47,67 @@ namespace ClothingStoreApp.Controllers
             return View();
         }
 
-        [Area("Admin")]
-        [Authorize(Roles = "Admin")]
-       // [Route("Admin/Products")]
-        public async Task<IActionResult> Index(string category)
-        {
-            var categories = await _context.Products
-                .Select(p => p.Category)
-                .Distinct()
-                .ToListAsync();
+        //[Area("Admin")]
+        //[Authorize(Roles = "Admin")]
+        //[Route("Admin/Products")]
+        //public async Task<IActionResult> Index(string category)
+        //{
+        //    var categories = await _context.Products
+        //        .Select(p => p.Category)
+        //        .Distinct()
+        //        .ToListAsync();
 
-            ViewBag.Categories = categories;
+        //    ViewBag.Categories = categories;
 
-            var products = _context.Products.AsQueryable();
+        //    var products = _context.Products.AsQueryable();
 
-            if (!string.IsNullOrEmpty(category))
-            {
-                products = products.Where(p => p.Category == category);
-            }
+        //    if (!string.IsNullOrEmpty(category))
+        //    {
+        //        products = products.Where(p => p.Category == category);
+        //    }
 
-            return View("ProductsList", await products.ToListAsync());
-        }
+        //    return View("ProductsList", await products.ToListAsync());
+        //}
 
-        // GET: /Admin/Products/Edit/1
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        [Route("Product")]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return NotFound();
+        //// GET: /Admin/Products/Edit/1
+        //[HttpGet]
+        //[Authorize(Roles = "Admin")]
+        //[Route("Product")]
+        //public async Task<IActionResult> Edit(int id)
+        //{
+        //    var product = await _context.Products.FindAsync(id);
+        //    if (product == null) return NotFound();
 
-            return View(product); // loads Areas/Admin/Views/Products/Edit.cshtml
-        }
+        //    return View(product); // loads Areas/Admin/Views/Products/Edit.cshtml
+        //}
 
-        // POST: /Admin/Products/Edit/1
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        [Route("Product")]
-        public async Task<IActionResult> Edit(Product model)
-        {
-            if (!ModelState.IsValid) return View(model);
+        //// POST: /Admin/Products/Edit/1
+        //[HttpPost]
+        //[Authorize(Roles = "Admin")]
+        //[Route("Product")]
+        //public async Task<IActionResult> Edit(Product model)
+        //{
+        //    if (!ModelState.IsValid) return View(model);
 
-            _context.Products.Update(model);
-            await _context.SaveChangesAsync();
+        //    _context.Products.Update(model);
+        //    await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
-        }
+        //    return RedirectToAction("Index");
+        //}
 
-        // GET: /Admin/Products/Delete/1
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        [Route("Product")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return NotFound();
+        //// GET: /Admin/Products/Delete/1
+        //[HttpGet]
+        //[Authorize(Roles = "Admin")]
+        //[Route("Product")]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var product = await _context.Products.FindAsync(id);
+        //    if (product == null) return NotFound();
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+        //    _context.Products.Remove(product);
+        //    await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
-        }
+        //    return RedirectToAction("Index");
+        //}
     }
 }
