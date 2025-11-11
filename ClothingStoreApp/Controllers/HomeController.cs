@@ -20,12 +20,33 @@ namespace ClothingStoreApp.Controllers
         //{
         //    return View();
         //}
-        public async Task<IActionResult> Index()
-        {
-            var products = await _repo.GetAllAsync();
-            return View(products);
-        }
+        //public async Task<IActionResult> Index()
+        //{
+        //    var products = await _repo.GetAllAsync();
+        //    return View(products);
+        //}
 
+        public async Task<IActionResult> Index(int page = 1)
+        {
+            int pageSize = 5;
+
+            var allProducts = await _repo.GetAllAsync();
+            var totalProducts = allProducts.Count();
+
+            var products = allProducts
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+            var vm = new PagedProductsViewModel
+            {
+                Products = products,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalProducts / (double)pageSize)
+            };
+
+            return View(vm);
+        }
 
         public IActionResult Privacy()
         {

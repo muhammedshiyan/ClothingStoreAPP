@@ -24,10 +24,65 @@ namespace ClothingStoreApp.Controllers
         //    return view(products);
         //}
 
-        public async Task<IActionResult> Index()
+        //public async Task<IActionResult> Index()
+        //{
+        //    var products = await _repo.GetAllAsync();
+        //    return View(products);
+        //}
+
+        public async Task<IActionResult> Index(string category, string search, int page = 1, int pageSize = 12)
         {
-            var products = await _repo.GetAllAsync();
-            return View(products);
+            var products = _context.Products.AsQueryable();
+
+            // ✅ Category Filter
+            if (!string.IsNullOrEmpty(category))
+                products = products.Where(p => p.Category.ToLower() == category.ToLower());
+
+            // ✅ Search Filter
+            if (!string.IsNullOrEmpty(search))
+                products = products.Where(p =>
+                    p.Name.Contains(search) ||
+                    p.Description.Contains(search) ||
+                    p.Category.Contains(search)
+                );
+
+            // ✅ Pagination logic
+            var totalItems = await products.CountAsync();
+            var data = await products
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.Search = search;
+            ViewBag.Category = category;
+
+            return View(data);
+        }
+
+        public async Task<IActionResult> Products(int page = 1)
+        {
+            int pageSize = 12;
+
+            var allProducts = await _repo.GetAllAsync();
+            var total = allProducts.Count();
+
+            var products = allProducts
+                            .OrderBy(x => x.Id)
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+            var vm = new PagedProductsViewModel
+            {
+                Products = products,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+            };
+
+            return View(vm);
         }
 
         public async Task<IActionResult> Details(int id)
