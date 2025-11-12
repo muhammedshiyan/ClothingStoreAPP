@@ -64,10 +64,19 @@ app.UseRouting();
 app.UseAuthorization();
 app.UseSession(); //use before map
 
+//app.MapGet("/", context =>
+//{
+//    context.Response.Redirect("/Home/Index");
+//    return Task.CompletedTask;
+//});
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

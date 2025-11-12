@@ -1,0 +1,50 @@
+﻿@model PagedProductsViewModel
+
+<div class="products-grid">
+    @foreach (var p in Model.Products)
+    {
+        <div class="card product-card">
+            <img src="@p.ImageUrl" class="card-img-top" />
+            <div class="card-body text-center d-flex flex-column">
+                <h6 class="fw-bold mb-1 text-truncate">@p.Name</h6>
+                <p class="text-muted mb-2">₹@p.Price</p>
+
+                <a href="/Product/Details/@p.Id" class="btn btn-outline-dark btn-sm w-100 mb-2">View</a>
+                <a href="/Cart/Add/@p.Id" class="btn btn-dark btn-sm w-100">Add To Cart</a>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="text-center mt-4">
+    <nav>
+        <ul class="pagination justify-content-center">
+
+            <!-- Previous -->
+            @if (Model.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="/Home/Index?page=@(Model.CurrentPage - 1)#popular-products">Prev</a>
+                </li>
+            }
+
+            <!-- Page Numbers -->
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="/Home/Index?page=@i#popular-products">@i</a>
+                </li>
+            }
+
+            <!-- Next -->
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="/Home/Index?page=@(Model.CurrentPage + 1)#popular-products">Next</a>
+                </li>
+            }
+
+        </ul>
+    </nav>
+</div>
+

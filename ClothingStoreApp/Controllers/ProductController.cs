@@ -62,12 +62,52 @@ namespace ClothingStoreApp.Controllers
             return View(data);
         }
 
-        public async Task<IActionResult> Products(int page = 1)
+        [HttpGet]
+        public async Task<IActionResult> ProductsPartial(string category, string search, int page = 1, int pageSize = 12)
         {
-            int pageSize = 12;
+            var query = _context.Products.AsQueryable();
 
-            var allProducts = await _repo.GetAllAsync();
+            if (!string.IsNullOrEmpty(category))
+                query = query.Where(p => p.Category.ToLower() == category.ToLower());
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+
+            var totalItems = await query.CountAsync();
+            var products = await query
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var model = new PagedProductsViewModel
+            {
+                Products = products,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+            };
+
+            return PartialView("_ProductsPartial", model);
+        }
+
+
+        public async Task<IActionResult> Products(string category, string search, int page = 1, int pageSize = 12)
+        {
+
+            var allProducts =  _context.Products.AsQueryable();
             var total = allProducts.Count();
+
+            // ✅ Category Filter
+            if (!string.IsNullOrEmpty(category))
+                allProducts = allProducts.Where(p => p.Category.ToLower() == category.ToLower());
+
+            // ✅ Search Filter
+            if (!string.IsNullOrEmpty(search))
+                allProducts = allProducts.Where(p =>
+                    p.Name.Contains(search) ||
+                    p.Description.Contains(search) ||
+                    p.Category.Contains(search)
+                );
 
             var products = allProducts
                             .OrderBy(x => x.Id)

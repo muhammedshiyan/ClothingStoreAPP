@@ -13,15 +13,15 @@ public class OrderController : Controller
     {
         _context = context;
     }
-    public async Task<IActionResult> Index()
-    {
-        var orders = await _context.Orders
-            .Include(o => o.Items)
-            .OrderByDescending(o => o.OrderDate)
-            .ToListAsync();
+    //public async Task<IActionResult> Index()
+    //{
+    //    var orders = await _context.Orders
+    //        .Include(o => o.Items)
+    //        .OrderByDescending(o => o.OrderDate)
+    //        .ToListAsync();
 
-        return View(orders); // ✅ Return model
-    }
+    //    return View(orders); // ✅ Return model
+    //}
 
     public async Task<IActionResult> OrderDetails(int id)
     {
@@ -35,7 +35,7 @@ public class OrderController : Controller
         return View(order);
     }
     // ✅ Order List Page
-    [HttpGet("")]
+   // [HttpGet("")]
     public async Task<IActionResult> Ordermanagement()
     {
         var orders = await _context.Orders

@@ -110,9 +110,9 @@
         <div class="category" onclick="openPage('kids')">🧒 Kids</div>
     </div>
 
-    <a class="shop-btn" href="/Product">Shop All Products</a>
+    <a class="shop-btn" href="Product/Products">Shop All Products</a>
 
-    <div class="container my-5">
+   @* <div id ="popular-products" class="container my-5">
         <h3 class="fw-bold mb-3">Popular Products</h3>
 
         <div class="products-grid">
@@ -130,48 +130,71 @@
                 </div>
             }
         </div>
+    </div> *@
+
+    <div id="popular-products" class="container my-5">
+        <h3 class="fw-bold mb-3">Popular Products</h3>
+
+        <div id="product-container">
+            @await Html.PartialAsync("~/Views/Product/_ProductsPartial.cshtml", Model)
+        </div>
     </div>
 
 
-    <div class="text-center mt-4">
-        <nav>
-            <ul class="pagination justify-content-center">
-
-                <!-- Previous -->
-                @if (Model.CurrentPage > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="/Home/Index?page=@(Model.CurrentPage - 1)">Prev</a>
-                    </li>
-                }
-
-                <!-- Page Numbers -->
-                @for (int i = 1; i <= Model.TotalPages; i++)
-                {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="/Home/Index?page=@i">@i</a>
-                    </li>
-                }
-
-                <!-- Next -->
-                @if (Model.CurrentPage < Model.TotalPages)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="/Home/Index?page=@(Model.CurrentPage + 1)">Next</a>
-                    </li>
-                }
-
-            </ul>
-        </nav>
-    </div>
 
 
 
     <script>
         function openPage(category) {
-            window.location.href = "/Product?category=" + category;
+            window.location.href = "Product/Products?category=" + category;
         }
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("product-container");
+
+            document.addEventListener("click", async (e) => {
+                if (e.target.classList.contains("product-page")) {
+                    e.preventDefault();
+                    const page = e.target.dataset.page;
+
+                    const response = await fetch(`/Product/ProductsPartial?page=${page}`);
+                    const html = await response.text();
+
+                    container.innerHTML = html;
+
+                    // Scroll smoothly to the product section
+                    const section = document.getElementById("popular-products");
+                    if (section) section.scrollIntoView({ behavior: "smooth" });
+                }
+            });
+        });
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .product-card {
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+            .product-card img {
+                height: 200px;
+                object-fit: cover;
+                border-radius: 6px;
+            }
+    </style>
 
 </body>
 </html>

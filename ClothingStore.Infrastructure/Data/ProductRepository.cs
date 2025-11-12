@@ -41,5 +41,21 @@ namespace ClothingStore.Infrastructure.Data
                 await _context.SaveChangesAsync();
             }
         }
+
+        //  Count total products
+        public async Task<int> CountAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
+
+        //  Get products with pagination
+        public async Task<List<Product>> GetPagedAsync(int page, int pageSize)
+        {
+            return await _context.Products
+                .OrderBy(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }

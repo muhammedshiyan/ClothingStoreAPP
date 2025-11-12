@@ -30,7 +30,7 @@ namespace ClothingStoreApp.Controllers
         {
             int pageSize = 5;
 
-            var allProducts = await _repo.GetAllAsync();
+            var allProducts = await _repo.GetPagedAsync(page, pageSize);
             var totalProducts = allProducts.Count();
 
             var products = allProducts
