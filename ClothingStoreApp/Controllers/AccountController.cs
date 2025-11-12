@@ -1,7 +1,8 @@
-﻿using ClothingStoreApp.Models;
+﻿using ClothingStore.Core.Entities;
+using ClothingStoreApp.Models;
+using ClothingStoreApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ClothingStore.Core.Entities;
 
 namespace ClothingStoreApp.Controllers
 {
@@ -26,10 +27,14 @@ namespace ClothingStoreApp.Controllers
         }
 
         [HttpGet]
-            public IActionResult Login() => View();
+        public IActionResult Login(string returnUrl = "/")
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
 
-            [HttpPost]
-            public async Task<IActionResult> Login(string email, string password)
+        [HttpPost]
+            public async Task<IActionResult> Login(string email, string password,string returnUrl = "/")
             {
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
@@ -40,17 +45,33 @@ namespace ClothingStoreApp.Controllers
 
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
-                    return RedirectToAction("Index", "Home");
+                {
+                // after successful sign-in:
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                // merge session cart into DB cart
+                var cartService = HttpContext.RequestServices.GetRequiredService<ICartService>();
+                await cartService.MergeSessionCartToDbAsync();
+
+                return Redirect(returnUrl);
+               // return RedirectToAction("Index", "Home");
+
+                }
+ 
 
                 ViewBag.Error = "Invalid login attempt";
                 return View();
             }
 
             [HttpGet]
-            public IActionResult Register() => View();
+        public IActionResult Register(string returnUrl = "/")
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
 
-            [HttpPost]
-            public async Task<IActionResult> Register(string fullName, string email, string password ,string Role)
+        [HttpPost]
+            public async Task<IActionResult> Register(string fullName, string email, string password ,string Role, string returnUrl = "/")
             {
                 var user = new ApplicationUser
                 {
@@ -64,7 +85,7 @@ namespace ClothingStoreApp.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, Role);
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Login",returnUrl);
                 }
 
                 ViewBag.Error = string.Join(", ", result.Errors.Select(e => e.Description));

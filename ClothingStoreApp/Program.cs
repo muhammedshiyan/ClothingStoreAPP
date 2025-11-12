@@ -11,7 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSession();
+//builder.Services.AddSession();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromDays(7);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Database connection
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -21,6 +28,8 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddHttpContextAccessor();
 
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICartService, HybridCartService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()

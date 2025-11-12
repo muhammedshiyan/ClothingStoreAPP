@@ -1,14 +1,30 @@
 ﻿@model CheckoutViewModel
+
 @{
-    var cart = ViewBag.Cart as List<ClothingStoreApp.Models.CartViewModel>;
-    decimal total = ViewBag.Total;
+    var cart = ViewBag.Cart as List<ClothingStoreApp.Models.CartViewModel> ?? new();
+    decimal total = ViewBag.Total == null ? 0 : (decimal)ViewBag.Total;
 }
+
 <div class="container d-flex justify-content-center mt-5 mb-5">
     <div class="card shadow-lg border-0 p-4" style="max-width: 450px; width:100%; border-radius: 12px;">
 
         <h3 class="text-center mb-4 fw-bold">Checkout</h3>
 
-        <!-- Order Summary Box -->
+        @* 🔒 If cart is empty, stop processing *@
+        @if (!cart.Any())
+        {
+            <div class="alert alert-warning fw-bold text-center">
+                Your cart is empty!
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="/Product" class="btn btn-dark">Shop Now</a>
+            </div>
+
+            return;
+        }
+
+        <!-- Order Summary -->
         <div class="mb-4 p-3 border rounded bg-light">
             <h5 class="fw-bold mb-3">Order Summary</h5>
 
@@ -21,6 +37,7 @@
             }
 
             <hr />
+
             <div class="d-flex justify-content-between fw-bold fs-5">
                 <span>Total</span>
                 <span>₹@total</span>
@@ -39,41 +56,34 @@
             </div>
 
             <div class="form-floating mb-4">
-                <textarea asp-for="Address" class="form-control" placeholder="Delivery Address" style="height: 110px;" required></textarea>
+                <textarea asp-for="Address" class="form-control" placeholder="Delivery Address" style="height:110px;" required></textarea>
                 <label class="fw-semibold">Address</label>
             </div>
 
+            <!-- Payment Method -->
             <div class="mb-4">
                 <label class="fw-semibold mb-2">Payment Method</label>
 
-                <div class="form-check">
-                    <div class="mb-4">
-                        <label class="fw-semibold mb-2">Select Payment Method</label>
-
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="COD" checked>
-                            <label class="form-check-label fw-semibold">Cash on Delivery (COD)</label>
-                        </div>
-
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="UPI">
-                            <label class="form-check-label fw-semibold">UPI (Google Pay / PhonePe / Paytm)</label>
-                        </div>
-
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Card">
-                            <label class="form-check-label fw-semibold">Credit / Debit Card</label>
-                        </div>
-
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Wallet">
-                            <label class="form-check-label fw-semibold">Wallet (Paytm / PhonePe)</label>
-                        </div>
-                    </div>
-
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="COD" checked>
+                    <label class="form-check-label fw-semibold">Cash on Delivery (COD)</label>
                 </div>
 
-                @* Future for online payment *@
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="UPI">
+                    <label class="form-check-label fw-semibold">UPI / Google Pay / PhonePe</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Card">
+                    <label class="form-check-label fw-semibold">Credit / Debit Card</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Wallet">
+                    <label class="form-check-label fw-semibold">Wallet (Paytm / PhonePe)</label>
+                </div>
+
                 <div class="form-check">
                     <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Online" disabled>
                     <label class="form-check-label text-muted">Online Payment (Coming Soon)</label>

@@ -84,5 +84,19 @@ namespace ClothingStoreApp.Services
             var cart = await GetOrCreateCartAsync();
             return cart.Items.ToList();
         }
+        //public async Task ClearDbCartAsync()
+        //{
+        //    var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var items = _context.CartItems.Where(x => x.UserId == userId);
+        //    _context.CartItems.RemoveRange(items);
+        //    await _context.SaveChangesAsync();
+        //}
+
+        //public Task ClearSessionCartAsync()
+        //{
+        //    _httpContextAccessor.HttpContext.Session.Remove("cart");
+        //    return Task.CompletedTask;
+        //}
+
     }
 }
